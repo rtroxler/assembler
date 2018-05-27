@@ -52,9 +52,9 @@ struct Line {
     line: String,
 }
 
-// should a line just have a command_type?
+// should a line just have a instruction_type?
 #[derive(Debug)]
-enum CommandType {
+enum InstructionType {
     A,
     C,
     L,
@@ -62,15 +62,15 @@ enum CommandType {
 
 impl Line {
     fn print(&self) {
-        println!("{} \t {:?}", self.line, self.command_type());
+        println!("{} \t {:?}", self.line, self.instruction_type());
     }
-    fn command_type(&self) -> CommandType {
+    fn instruction_type(&self) -> InstructionType {
         if self.line.starts_with("@") {
-            CommandType::A
+            InstructionType::A
         } else if self.line.starts_with("(") && self.line.ends_with(")") {
-            CommandType::L
+            InstructionType::L
         } else {
-            CommandType::C
+            InstructionType::C
         }
     }
 
