@@ -40,6 +40,7 @@ impl Parser {
             .map(|line| line.unwrap())
             .filter(|line| !line.starts_with("//"))
             .filter(|line| !line.is_empty());
+
         for line in line_iter {
             let readable_line = Line { line: line };
             readable_line.print();
@@ -51,11 +52,27 @@ struct Line {
     line: String,
 }
 
+// should a line just have a command_type?
+#[derive(Debug)]
+enum CommandType {
+    A,
+    C,
+    L,
+}
+
 impl Line {
     fn print(&self) {
-        println!("{}", self.line);
+        println!("{} \t {:?}", self.line, self.command_type());
     }
-    //fn commandType(&self) -> String {}
+    fn command_type(&self) -> CommandType {
+        if self.line.starts_with("@") {
+            CommandType::A
+        } else if self.line.starts_with("(") && self.line.ends_with(")") {
+            CommandType::L
+        } else {
+            CommandType::C
+        }
+    }
 
     //fn symbol(&self) -> String {}
     //fn dest(&self) -> String {}
