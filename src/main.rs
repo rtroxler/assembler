@@ -69,11 +69,11 @@ impl Line {
         match self.instruction_type() {
             InstructionType::C => {
                 println!("\tdest: \t {:?}", self.dest());
-                println!("\tcomp: \t");
-                println!("\tjump: \t");
+                println!("\tcomp: \t {:?}", self.comp());
+                println!("\tjump: \t {:?}", self.jump());
                 println!("")
             }
-            _ => println!("\tsymb: \t {:?}", self.symbol()),
+            _ => println!("\tsymb: \t {:?}", self.symbol().unwrap()),
         }
     }
 
@@ -106,10 +106,19 @@ impl Line {
     }
     fn comp(&self) -> Option<String> {
         // Either after the = or before the ;
-        None
+        match self.line.find('=') {
+            Some(index) => Some(self.line[index + 1..].to_string()),
+            None => match self.line.find(';') {
+                Some(index) => Some(self.line[..index].to_string()),
+                None => None,
+            },
+        }
     }
     fn jump(&self) -> Option<String> {
         // After the ;, if there's a ;
-        None
+        match self.line.find(';') {
+            Some(index) => Some(self.line[index + 1..].to_string()),
+            None => None,
+        }
     }
 }
