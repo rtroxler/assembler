@@ -65,7 +65,16 @@ impl Line {
     fn print(&self) {
         println!("{} ", self.line,);
         println!("\tType: \t {:?}", self.instruction_type());
-        println!("\tSymbol: \t {:?}", self.symbol());
+
+        match self.instruction_type() {
+            InstructionType::C => {
+                println!("\tdest: \t {:?}", self.dest());
+                println!("\tcomp: \t");
+                println!("\tjump: \t");
+                println!("")
+            }
+            _ => println!("\tsymb: \t {:?}", self.symbol()),
+        }
     }
 
     fn instruction_type(&self) -> InstructionType {
@@ -86,7 +95,21 @@ impl Line {
         }
     }
 
-    //fn dest(&self) -> String {}
-    //fn comp(&self) -> String {}
-    //fn jump(&self) -> String {}
+    fn dest(&self) -> Option<String> {
+        // If there's an =, pull all up to the equal. If there's not, return None
+        // split_off takes an index
+        // find returns an index of =?
+        match self.line.find('=') {
+            Some(index) => Some(self.line[..index].to_string()),
+            None => None,
+        }
+    }
+    fn comp(&self) -> Option<String> {
+        // Either after the = or before the ;
+        None
+    }
+    fn jump(&self) -> Option<String> {
+        // After the ;, if there's a ;
+        None
+    }
 }
