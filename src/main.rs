@@ -41,9 +41,7 @@ impl Parser {
         I: Iterator<Item = String>,
     {
         for line in line_iter {
-            let readable_line = Line {
-                line: line.trim().to_string(),
-            };
+            let readable_line = Line::new(line);
             readable_line.print();
         }
     }
@@ -51,6 +49,18 @@ impl Parser {
 
 struct Line {
     line: String,
+}
+
+impl Line {
+    fn new(line: String) -> Line {
+        let no_comments = match line.find("//") {
+            Some(index) => line[..index].to_string(),
+            None => line,
+        };
+        Line {
+            line: no_comments.trim().to_string(),
+        }
+    }
 }
 
 // should a line just have a instruction_type?
