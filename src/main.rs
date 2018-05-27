@@ -21,26 +21,24 @@ impl Parser {
     fn parse_file(&self) {
         println!("Parsing file: {:?}", self.filename);
         let file = File::open(&self.filename).expect("File not found");
-        //let line_iter = self.filter_lines(file)
-        self.parse_lines(file)
+        let line_iter = self.filter_lines(file);
+        self.parse_lines(line_iter)
     }
 
-    //fn filter_lines(&self, file: File) -> Iterator {
-    //
-    //BufReader::new(file)
-    //.lines()
-    //.map(|line| line.unwrap())
-    //.filter(|line| !line.starts_with("//"))
-    //.filter(|line| !line.is_empty());
-    //}
-
-    fn parse_lines(&self, file: File) {
-        let line_iter = BufReader::new(file)
+    // Filter lines for comments and whitespace
+    fn filter_lines(&self, file: File) -> impl Iterator<Item = String> {
+        BufReader::new(file)
             .lines()
             .map(|line| line.unwrap())
             .filter(|line| !line.starts_with("//"))
-            .filter(|line| !line.is_empty());
+            .filter(|line| !line.is_empty())
+    }
 
+    // Take an iterator of lines and map them to Lines
+    fn parse_lines<I>(&self, line_iter: I)
+    where
+        I: Iterator<Item = String>,
+    {
         for line in line_iter {
             let readable_line = Line { line: line };
             readable_line.print();
@@ -55,9 +53,9 @@ struct Line {
 // should a line just have a instruction_type?
 #[derive(Debug)]
 enum InstructionType {
-    A,
-    C,
-    L,
+    A, // Address
+    C, // Computation
+    L, // Symbol ( generates no machine code )
 }
 
 impl Line {
