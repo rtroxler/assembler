@@ -13,6 +13,7 @@ fn main() {
     parser.parse_file();
 }
 
+// Bout time to pull this into it's own module
 struct Parser {
     filename: String,
 }
@@ -40,7 +41,9 @@ impl Parser {
         I: Iterator<Item = String>,
     {
         for line in line_iter {
-            let readable_line = Line { line: line };
+            let readable_line = Line {
+                line: line.trim().to_string(),
+            };
             readable_line.print();
         }
     }
@@ -60,8 +63,11 @@ enum InstructionType {
 
 impl Line {
     fn print(&self) {
-        println!("{} \t {:?}", self.line, self.instruction_type());
+        println!("{} ", self.line,);
+        println!("\tType: \t {:?}", self.instruction_type());
+        println!("\tSymbol: \t {:?}", self.symbol());
     }
+
     fn instruction_type(&self) -> InstructionType {
         if self.line.starts_with("@") {
             InstructionType::A
@@ -72,7 +78,14 @@ impl Line {
         }
     }
 
-    //fn symbol(&self) -> String {}
+    fn symbol(&self) -> Option<String> {
+        match self.instruction_type() {
+            InstructionType::A => Some(self.line[1..].to_string()), // @Symbol
+            InstructionType::L => Some(self.line[1..self.line.len() - 1].to_string()), // (Symbol)
+            InstructionType::C => None,
+        }
+    }
+
     //fn dest(&self) -> String {}
     //fn comp(&self) -> String {}
     //fn jump(&self) -> String {}
