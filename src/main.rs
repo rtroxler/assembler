@@ -28,9 +28,8 @@ impl Parser {
         let file = File::open(&self.filename).expect("File not found");
         // TODO: filename
         let mut output = File::create("Add.hack").unwrap();
-        let c_instr = CInstructionTranslator::new();
         let line_iter = self.filter_lines(file);
-        self.parse_lines(line_iter, &mut output, &c_instr);
+        self.parse_lines(line_iter, &mut output);
     }
 
     // Filter lines for comments and whitespace
@@ -43,22 +42,33 @@ impl Parser {
     }
 
     // Take an iterator of lines and map them to Lines
-    fn parse_lines<I>(&self, line_iter: I, output: &mut File, c_instr: &CInstructionTranslator)
+    fn parse_lines<I>(&self, line_iter: I, output: &mut File)
     where
         I: Iterator<Item = String>,
     {
         for line in line_iter {
             let readable_line = Line::new(line);
-            readable_line.print();
+            // base line parses to determine type
+            // transform into a Instruction trait object
+            let instruction = readable_line.transform();
 
             // Should probably be elsewhere, but shrug
-            readable_line.output_binary(output, c_instr);
+            instruction.print();
+            instruction.write_binary(output);
         }
     }
 }
 
 struct Line {
     line: String,
+}
+
+// should a line just have a instruction_type?
+#[derive(Debug)]
+enum InstructionType {
+    A, // Address
+    C, // Computation
+    L, // Symbol ( generates no machine code )
 }
 
 impl Line {
@@ -71,17 +81,7 @@ impl Line {
             line: no_comments.trim().to_string(),
         }
     }
-}
 
-// should a line just have a instruction_type?
-#[derive(Debug)]
-enum InstructionType {
-    A, // Address
-    C, // Computation
-    L, // Symbol ( generates no machine code )
-}
-
-impl Line {
     fn instruction_type(&self) -> InstructionType {
         if self.line.starts_with("@") {
             InstructionType::A
@@ -92,73 +92,55 @@ impl Line {
         }
     }
 
+    // Takes the line, eats it, returns an instruction implementing Trait
+    // The heap allocation is meh, but it makes the rest of the code so much cleaner
+    fn transform(self) -> Box<Instruction> {
+        match self.instruction_type() {
+            InstructionType::A => Box::new(AInstruction { line: self.line }),
+            InstructionType::C => Box::new(CInstruction {
+                line: self.line,
+                c_instr: CInstructionTranslator::new(),
+            }),
+            InstructionType::L => Box::new(LInstruction { line: self.line }),
+        }
+    }
+}
+
+trait Instruction {
+    fn write_binary(&self, _output: &mut File) {}
     fn print(&self) {
-        println!("{} ", self.line,);
-        println!("\tType: \t {:?}", self.instruction_type());
-
-        match self.instruction_type() {
-            InstructionType::C => {
-                println!("\tdest: \t {:?}", self.dest());
-                println!("\tcomp: \t {:?}", self.comp());
-                println!("\tjump: \t {:?}", self.jump());
-                println!("");
-            }
-            _ => {
-                println!("\tsymb: \t {:?}", self.symbol().unwrap());
-            }
-        }
+        //println!("{} ", self.line());
     }
+}
 
-    fn output_binary(&self, output: &mut File, c_instr: &CInstructionTranslator) {
-        match self.instruction_type() {
-            InstructionType::A => write!(
-                output,
-                "{:016b}\n",
-                self.symbol().unwrap().parse::<i32>().unwrap()
-            ),
-            InstructionType::L => write!(output, "{:016b}\n", 12345), // Lookup symbol from table (eventually)
-            InstructionType::C => {
-                write!(output, "{}\n", self.dest_comp_jump_string(c_instr).unwrap())
-            }
+struct CInstruction {
+    line: String,
+    c_instr: CInstructionTranslator,
+}
+impl CInstruction {
+    fn dest_comp_jump_string(&self) -> String {
+        let mut result = String::with_capacity(16);
+        result.push_str("111");
+        let comp = match self.comp() {
+            Some(string) => self.c_instr.comp_map.get(string.as_str()).cloned().unwrap(),
+            None => "000",
         };
-    }
+        result.push_str(comp);
 
-    fn symbol(&self) -> Option<String> {
-        match self.instruction_type() {
-            InstructionType::A => Some(self.line[1..].to_string()), // @Symbol
-            InstructionType::L => Some(self.line[1..self.line.len() - 1].to_string()), // (Symbol)
-            InstructionType::C => None,
-        }
-    }
+        let dest = self.c_instr
+            .dest_map
+            .get(self.dest().unwrap().as_str())
+            .cloned()
+            .unwrap_or("000");
+        result.push_str(dest);
 
-    fn dest_comp_jump_string(&self, c_instr: &CInstructionTranslator) -> Option<String> {
-        match self.instruction_type() {
-            InstructionType::C => {
-                let mut result = String::with_capacity(16);
-                result.push_str("111");
-                let comp = match self.comp() {
-                    Some(string) => c_instr.comp_map.get(string.as_str()).cloned().unwrap(),
-                    None => "000",
-                };
-                result.push_str(comp);
+        let jump = match self.jump() {
+            Some(string) => self.c_instr.jump_map.get(string.as_str()).cloned().unwrap(),
+            None => "000",
+        };
+        result.push_str(jump);
 
-                let dest = c_instr
-                    .dest_map
-                    .get(self.dest().unwrap().as_str())
-                    .cloned()
-                    .unwrap_or("000");
-                result.push_str(dest);
-
-                let jump = match self.jump() {
-                    Some(string) => c_instr.jump_map.get(string.as_str()).cloned().unwrap(),
-                    None => "000",
-                };
-                result.push_str(jump);
-
-                Some(result)
-            }
-            _ => None,
-        }
+        result
     }
 
     fn dest(&self) -> Option<String> {
@@ -186,7 +168,47 @@ impl Line {
         }
     }
 }
+impl Instruction for CInstruction {
+    fn write_binary(&self, output: &mut File) {
+        write!(output, "{}\n", self.dest_comp_jump_string());
+    }
+}
 
+struct AInstruction {
+    line: String,
+}
+impl AInstruction {
+    fn symbol(&self) -> String {
+        // @Symbol
+        self.line[1..].to_string()
+    }
+}
+impl Instruction for AInstruction {
+    fn write_binary(&self, output: &mut File) {
+        // Pass up Result?
+        write!(output, "{:016b}\n", self.symbol().parse::<i32>().unwrap());
+    }
+}
+
+struct LInstruction {
+    line: String,
+}
+impl LInstruction {
+    fn symbol(&self) -> String {
+        // (Symbol)
+        self.line[1..self.line.len() - 1].to_string()
+    }
+}
+
+impl Instruction for LInstruction {
+    fn write_binary(&self, _output: &mut File) {
+        // Do nothing?
+    }
+}
+
+//
+//
+// Pull into file
 struct CInstructionTranslator {
     dest_map: HashMap<&'static str, &'static str>,
     jump_map: HashMap<&'static str, &'static str>,
