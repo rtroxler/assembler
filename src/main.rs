@@ -1,4 +1,6 @@
 use std::env;
+use std::io::prelude::*;
+
 use std::fs::File;
 
 use std::io::{BufRead, BufReader};
@@ -22,8 +24,9 @@ impl Parser {
     fn parse_file(&self) {
         println!("Parsing file: {:?}", self.filename);
         let file = File::open(&self.filename).expect("File not found");
+        let mut output = File::create("Add.hack").unwrap();
         let line_iter = self.filter_lines(file);
-        self.parse_lines(line_iter)
+        self.parse_lines(line_iter, &mut output);
     }
 
     // Filter lines for comments and whitespace
@@ -36,13 +39,16 @@ impl Parser {
     }
 
     // Take an iterator of lines and map them to Lines
-    fn parse_lines<I>(&self, line_iter: I)
+    fn parse_lines<I>(&self, line_iter: I, output: &mut File)
     where
         I: Iterator<Item = String>,
     {
         for line in line_iter {
             let readable_line = Line::new(line);
             readable_line.print();
+
+            // Should probably be elsewhere, but shrug
+            readable_line.output_binary(output);
         }
     }
 }
@@ -81,10 +87,25 @@ impl Line {
                 println!("\tdest: \t {:?}", self.dest());
                 println!("\tcomp: \t {:?}", self.comp());
                 println!("\tjump: \t {:?}", self.jump());
-                println!("")
+                println!("");
             }
-            _ => println!("\tsymb: \t {:?}", self.symbol().unwrap()),
+            _ => {
+                println!("\tsymb: \t {:?}", self.symbol().unwrap());
+                println!("\tconst: \t {:?}", self.symbol_as_constant().unwrap());
+            }
         }
+    }
+
+    fn output_binary(&self, output: &mut File) {
+        match self.instruction_type() {
+            InstructionType::A => write!(
+                output,
+                "{:016b}\n",
+                self.symbol().unwrap().parse::<i32>().unwrap()
+            ),
+            InstructionType::L => write!(output, "{:016b}\n", 12345),
+            InstructionType::C => write!(output, "{:016b}\n", 12345),
+        };
     }
 
     fn instruction_type(&self) -> InstructionType {
@@ -105,10 +126,16 @@ impl Line {
         }
     }
 
+    fn symbol_as_constant(&self) -> Option<u32> {
+        match self.instruction_type() {
+            InstructionType::A => Some(self.symbol().unwrap().parse::<u32>().unwrap()), // @Symbol
+            InstructionType::L => Some(self.symbol().unwrap().parse::<u32>().unwrap()), // (Symbol)
+            InstructionType::C => None,
+        }
+    }
+
     fn dest(&self) -> Option<String> {
         // If there's an =, pull all up to the equal. If there's not, return None
-        // split_off takes an index
-        // find returns an index of =?
         match self.line.find('=') {
             Some(index) => Some(self.line[..index].to_string()),
             None => None,
