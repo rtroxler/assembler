@@ -1,7 +1,12 @@
-use std::collections::HashMap;
 use std::fs::File;
-use std::io::prelude::*;
 use std::io::{BufRead, BufReader};
+
+mod c_instruction_translator;
+mod instruction;
+use parser::instruction::Instruction;
+use parser::instruction::a_instruction::AInstruction;
+use parser::instruction::c_instruction::CInstruction;
+use parser::instruction::l_instruction::LInstruction;
 
 pub struct Parser {
     filename: String,
@@ -84,180 +89,12 @@ impl Line {
     // The heap allocation is meh, but it makes the rest of the code so much cleaner
     fn transform(self) -> Box<Instruction> {
         match self.instruction_type() {
-            InstructionType::A => Box::new(AInstruction { line: self.line }),
-            InstructionType::C => Box::new(CInstruction {
-                line: self.line,
-                c_instr: CInstructionTranslator::new(),
-            }),
-            InstructionType::L => Box::new(LInstruction { line: self.line }),
-        }
-    }
-}
-
-trait Instruction {
-    fn write_binary(&self, _output: &mut File) {}
-    fn print(&self) {
-        //println!("{} ", self.line());
-    }
-}
-
-struct CInstruction {
-    line: String,
-    c_instr: CInstructionTranslator,
-}
-impl CInstruction {
-    fn dest_comp_jump_string(&self) -> String {
-        let mut result = String::with_capacity(16);
-        result.push_str("111");
-        let comp = match self.comp() {
-            Some(string) => self.c_instr.comp_map.get(string.as_str()).cloned().unwrap(),
-            None => "000",
-        };
-        result.push_str(comp);
-
-        let dest = self.c_instr
-            .dest_map
-            .get(self.dest().unwrap().as_str())
-            .cloned()
-            .unwrap_or("000");
-        result.push_str(dest);
-
-        let jump = match self.jump() {
-            Some(string) => self.c_instr.jump_map.get(string.as_str()).cloned().unwrap(),
-            None => "000",
-        };
-        result.push_str(jump);
-
-        result
-    }
-
-    fn dest(&self) -> Option<String> {
-        // If there's an =, pull all up to the equal. If there's not, return None
-        match self.line.find('=') {
-            Some(index) => Some(self.line[..index].to_string()),
-            None => None,
-        }
-    }
-    fn comp(&self) -> Option<String> {
-        // Either after the = or before the ;
-        match self.line.find('=') {
-            Some(index) => Some(self.line[index + 1..].to_string()),
-            None => match self.line.find(';') {
-                Some(index) => Some(self.line[..index].to_string()),
-                None => None,
-            },
-        }
-    }
-    fn jump(&self) -> Option<String> {
-        // After the ;, if there's a ;
-        match self.line.find(';') {
-            Some(index) => Some(self.line[index + 1..].to_string()),
-            None => None,
-        }
-    }
-}
-impl Instruction for CInstruction {
-    fn write_binary(&self, output: &mut File) {
-        write!(output, "{}\n", self.dest_comp_jump_string());
-    }
-}
-
-struct AInstruction {
-    line: String,
-}
-impl AInstruction {
-    fn symbol(&self) -> String {
-        // @Symbol
-        self.line[1..].to_string()
-    }
-}
-impl Instruction for AInstruction {
-    fn write_binary(&self, output: &mut File) {
-        // Pass up Result?
-        write!(output, "{:016b}\n", self.symbol().parse::<i32>().unwrap());
-    }
-}
-
-struct LInstruction {
-    line: String,
-}
-impl LInstruction {
-    fn symbol(&self) -> String {
-        // (Symbol)
-        self.line[1..self.line.len() - 1].to_string()
-    }
-}
-
-impl Instruction for LInstruction {
-    fn write_binary(&self, _output: &mut File) {
-        // Do nothing?
-    }
-}
-
-//
-//
-// Pull into file
-struct CInstructionTranslator {
-    dest_map: HashMap<&'static str, &'static str>,
-    jump_map: HashMap<&'static str, &'static str>,
-    comp_map: HashMap<&'static str, &'static str>,
-}
-
-impl CInstructionTranslator {
-    fn new() -> CInstructionTranslator {
-        let mut dest_map = HashMap::new();
-        dest_map.insert("M", "001");
-        dest_map.insert("D", "010");
-        dest_map.insert("A", "100");
-        dest_map.insert("MD", "011");
-        dest_map.insert("AM", "101");
-        dest_map.insert("AD", "110");
-        dest_map.insert("AMD", "111");
-
-        let mut jump_map = HashMap::new();
-        jump_map.insert("JGT", "001");
-        jump_map.insert("JEQ", "010");
-        jump_map.insert("JGE", "100");
-        jump_map.insert("JLT", "011");
-        jump_map.insert("JNE", "101");
-        jump_map.insert("JLE", "110");
-        jump_map.insert("JMP", "111");
-
-        let mut comp_map = HashMap::new();
-        comp_map.insert("0", "0101010");
-        comp_map.insert("1", "0111111");
-        comp_map.insert("-1", "0111010");
-        comp_map.insert("D", "0001100");
-        comp_map.insert("A", "0110000");
-        comp_map.insert("!D", "0001101");
-        comp_map.insert("!A", "0110001");
-        comp_map.insert("-D", "0001111");
-        comp_map.insert("-A", "0110011");
-        comp_map.insert("D+1", "0011111");
-        comp_map.insert("A+1", "0110111");
-        comp_map.insert("A+1", "0110111");
-        comp_map.insert("D-1", "0001110");
-        comp_map.insert("A-1", "0110010");
-        comp_map.insert("D+A", "0000010");
-        comp_map.insert("D-A", "0010011");
-        comp_map.insert("A-D", "0000111");
-        comp_map.insert("D&A", "0000000");
-        comp_map.insert("D|A", "0010101");
-        comp_map.insert("M", "1110000");
-        comp_map.insert("!M", "1110001");
-        comp_map.insert("-M", "1110011");
-        comp_map.insert("M+1", "1110111");
-        comp_map.insert("M-1", "1110010");
-        comp_map.insert("D+M", "1000010");
-        comp_map.insert("D-M", "1010011");
-        comp_map.insert("M-D", "1000111");
-        comp_map.insert("D&M", "1000000");
-        comp_map.insert("D|M", "1010101");
-
-        CInstructionTranslator {
-            dest_map: dest_map,
-            jump_map: jump_map,
-            comp_map: comp_map,
+            InstructionType::A => Box::new(AInstruction::new(self.line)),
+            InstructionType::C => Box::new(CInstruction::new(
+                self.line,
+                c_instruction_translator::CInstructionTranslator::new(),
+            )),
+            InstructionType::L => Box::new(LInstruction::new(self.line)),
         }
     }
 }
