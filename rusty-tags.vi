@@ -4,12 +4,37 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
-InstructionType	/Users/ryantroxler/playground/rust/assembler/src/main.rs	/^enum InstructionType {$/;"	g
-Line	/Users/ryantroxler/playground/rust/assembler/src/main.rs	/^struct Line {$/;"	s
-Parser	/Users/ryantroxler/playground/rust/assembler/src/main.rs	/^struct Parser {$/;"	s
-filter_lines	/Users/ryantroxler/playground/rust/assembler/src/main.rs	/^    fn filter_lines(&self, file: File) -> impl Iterator<Item = String> {$/;"	f
-instruction_type	/Users/ryantroxler/playground/rust/assembler/src/main.rs	/^    fn instruction_type(&self) -> InstructionType {$/;"	f
+AInstruction	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/a_instruction.rs	/^pub struct AInstruction {$/;"	s
+CInstruction	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/c_instruction.rs	/^pub struct CInstruction {$/;"	s
+CInstructionTranslator	/Users/ryantroxler/playground/rust/assembler/src/parser/c_instruction_translator.rs	/^pub struct CInstructionTranslator {$/;"	s
+Instruction	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/mod.rs	/^pub trait Instruction {$/;"	t
+InstructionType	/Users/ryantroxler/playground/rust/assembler/src/parser/mod.rs	/^enum InstructionType {$/;"	g
+LInstruction	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/l_instruction.rs	/^pub struct LInstruction {$/;"	s
+Line	/Users/ryantroxler/playground/rust/assembler/src/parser/mod.rs	/^struct Line {$/;"	s
+Parser	/Users/ryantroxler/playground/rust/assembler/src/parser/mod.rs	/^pub struct Parser {$/;"	s
+comp	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/c_instruction.rs	/^    fn comp(&self) -> Option<String> {$/;"	f
+dest	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/c_instruction.rs	/^    fn dest(&self) -> Option<String> {$/;"	f
+dest_comp_jump_string	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/c_instruction.rs	/^    fn dest_comp_jump_string(&self) -> String {$/;"	f
+filter_lines	/Users/ryantroxler/playground/rust/assembler/src/parser/mod.rs	/^    fn filter_lines(&self, file: File) -> impl Iterator<Item = String> {$/;"	f
+instruction_type	/Users/ryantroxler/playground/rust/assembler/src/parser/mod.rs	/^    fn instruction_type(&self) -> InstructionType {$/;"	f
+jump	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/c_instruction.rs	/^    fn jump(&self) -> Option<String> {$/;"	f
 main	/Users/ryantroxler/playground/rust/assembler/src/main.rs	/^fn main() {$/;"	f
-parse_file	/Users/ryantroxler/playground/rust/assembler/src/main.rs	/^    fn parse_file(&self) {$/;"	f
-parse_lines	/Users/ryantroxler/playground/rust/assembler/src/main.rs	/^    fn parse_lines<I>(&self, line_iter: I)$/;"	f
-print	/Users/ryantroxler/playground/rust/assembler/src/main.rs	/^    fn print(&self) {$/;"	f
+new	/Users/ryantroxler/playground/rust/assembler/src/parser/c_instruction_translator.rs	/^    pub fn new() -> CInstructionTranslator {$/;"	f
+new	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/a_instruction.rs	/^    pub fn new(line: String) -> AInstruction {$/;"	f
+new	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/c_instruction.rs	/^    pub fn new($/;"	f
+new	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/l_instruction.rs	/^    pub fn new(line: String) -> LInstruction {$/;"	f
+new	/Users/ryantroxler/playground/rust/assembler/src/parser/mod.rs	/^    fn new(line: String) -> Line {$/;"	f
+new	/Users/ryantroxler/playground/rust/assembler/src/parser/mod.rs	/^    pub fn new(filename: String) -> Parser {$/;"	f
+parse_file	/Users/ryantroxler/playground/rust/assembler/src/parser/mod.rs	/^    pub fn parse_file(&self) {$/;"	f
+parse_lines	/Users/ryantroxler/playground/rust/assembler/src/parser/mod.rs	/^    fn parse_lines<I>(&self, line_iter: I, output: &mut File)$/;"	f
+print	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/a_instruction.rs	/^    fn print(&self) {$/;"	f
+print	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/c_instruction.rs	/^    fn print(&self) {$/;"	f
+print	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/l_instruction.rs	/^    fn print(&self) {$/;"	f
+print	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/mod.rs	/^    fn print(&self) {}$/;"	f
+symbol	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/a_instruction.rs	/^    fn symbol(&self) -> String {$/;"	f
+symbol	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/l_instruction.rs	/^    fn symbol(&self) -> String {$/;"	f
+transform	/Users/ryantroxler/playground/rust/assembler/src/parser/mod.rs	/^    fn transform(self) -> Box<Instruction> {$/;"	f
+write_binary	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/a_instruction.rs	/^    fn write_binary(&self, output: &mut File) {$/;"	f
+write_binary	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/c_instruction.rs	/^    fn write_binary(&self, output: &mut File) {$/;"	f
+write_binary	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/l_instruction.rs	/^    fn write_binary(&self, _output: &mut File) {$/;"	f
+write_binary	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/mod.rs	/^    fn write_binary(&self, _output: &mut File) {}$/;"	f

@@ -19,4 +19,9 @@ impl Instruction for LInstruction {
     fn write_binary(&self, _output: &mut File) {
         // Do nothing?
     }
+
+    fn print(&self) {
+        println!("{} ", self.line);
+        println!("\tsymb: \t {:?}", self.symbol());
+    }
 }

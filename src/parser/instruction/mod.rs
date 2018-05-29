@@ -5,7 +5,5 @@ pub mod l_instruction;
 
 pub trait Instruction {
     fn write_binary(&self, _output: &mut File) {}
-    fn print(&self) {
-        //println!("{} ", self.line());
-    }
+    fn print(&self) {}
 }

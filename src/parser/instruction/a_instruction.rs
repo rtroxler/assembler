@@ -20,4 +20,9 @@ impl Instruction for AInstruction {
         // Pass up Result?
         write!(output, "{:016b}\n", self.symbol().parse::<i32>().unwrap());
     }
+
+    fn print(&self) {
+        println!("{} ", self.line);
+        println!("\tsymb: \t {:?}", self.symbol());
+    }
 }

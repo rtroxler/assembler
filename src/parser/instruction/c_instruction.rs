@@ -18,6 +18,7 @@ impl CInstruction {
             c_instr: c_instr,
         }
     }
+
     fn dest_comp_jump_string(&self) -> String {
         let mut result = String::with_capacity(16);
         result.push_str("111");
@@ -68,8 +69,16 @@ impl CInstruction {
         }
     }
 }
+
 impl Instruction for CInstruction {
     fn write_binary(&self, output: &mut File) {
         write!(output, "{}\n", self.dest_comp_jump_string());
+    }
+
+    fn print(&self) {
+        println!("{} ", self.line);
+        println!("\tdest: \t {:?}", self.dest());
+        println!("\tcomp: \t {:?}", self.comp());
+        println!("\tjump: \t {:?}", self.jump());
     }
 }
