@@ -47,7 +47,9 @@ impl Parser {
 
             // Should probably be elsewhere, but shrug
             instruction.print();
-            instruction.write_binary(output);
+            instruction
+                .write_binary(output)
+                .expect("Failed to write instruction to file.");
         }
     }
 }

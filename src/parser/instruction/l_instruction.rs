@@ -1,5 +1,6 @@
 use super::Instruction;
 use std::fs::File;
+use std::io;
 pub struct LInstruction {
     line: String,
 }
@@ -16,8 +17,8 @@ impl LInstruction {
 }
 
 impl Instruction for LInstruction {
-    fn write_binary(&self, _output: &mut File) {
-        // Do nothing?
+    fn write_binary(&self, _output: &mut File) -> Result<(), io::Error> {
+        Ok(())
     }
 
     fn print(&self) {

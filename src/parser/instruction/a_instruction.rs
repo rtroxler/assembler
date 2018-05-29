@@ -1,6 +1,8 @@
 use super::Instruction;
 use std::fs::File;
+use std::io;
 use std::io::prelude::*;
+
 pub struct AInstruction {
     line: String,
 }
@@ -16,9 +18,9 @@ impl AInstruction {
 }
 
 impl Instruction for AInstruction {
-    fn write_binary(&self, output: &mut File) {
+    fn write_binary(&self, output: &mut File) -> Result<(), io::Error> {
         // Pass up Result?
-        write!(output, "{:016b}\n", self.symbol().parse::<i32>().unwrap());
+        write!(output, "{:016b}\n", self.symbol().parse::<i32>().unwrap())
     }
 
     fn print(&self) {

@@ -1,6 +1,7 @@
 use super::super::c_instruction_translator;
 use super::Instruction;
 use std::fs::File;
+use std::io::Error;
 use std::io::prelude::*;
 
 pub struct CInstruction {
@@ -71,8 +72,8 @@ impl CInstruction {
 }
 
 impl Instruction for CInstruction {
-    fn write_binary(&self, output: &mut File) {
-        write!(output, "{}\n", self.dest_comp_jump_string());
+    fn write_binary(&self, output: &mut File) -> Result<(), Error> {
+        write!(output, "{}\n", self.dest_comp_jump_string())
     }
 
     fn print(&self) {

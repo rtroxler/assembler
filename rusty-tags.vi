@@ -34,7 +34,7 @@ print	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/mod.rs
 symbol	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/a_instruction.rs	/^    fn symbol(&self) -> String {$/;"	f
 symbol	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/l_instruction.rs	/^    fn symbol(&self) -> String {$/;"	f
 transform	/Users/ryantroxler/playground/rust/assembler/src/parser/mod.rs	/^    fn transform(self) -> Box<Instruction> {$/;"	f
-write_binary	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/a_instruction.rs	/^    fn write_binary(&self, output: &mut File) {$/;"	f
-write_binary	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/c_instruction.rs	/^    fn write_binary(&self, output: &mut File) {$/;"	f
-write_binary	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/l_instruction.rs	/^    fn write_binary(&self, _output: &mut File) {$/;"	f
-write_binary	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/mod.rs	/^    fn write_binary(&self, _output: &mut File) {}$/;"	f
+write_binary	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/a_instruction.rs	/^    fn write_binary(&self, output: &mut File) -> Result<(), io::Error> {$/;"	f
+write_binary	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/c_instruction.rs	/^    fn write_binary(&self, output: &mut File) -> Result<(), Error> {$/;"	f
+write_binary	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/l_instruction.rs	/^    fn write_binary(&self, _output: &mut File) -> Result<(), io::Error> {$/;"	f
+write_binary	/Users/ryantroxler/playground/rust/assembler/src/parser/instruction/mod.rs	/^    fn write_binary(&self, _output: &mut File) -> Result<(), io::Error> {$/;"	f
