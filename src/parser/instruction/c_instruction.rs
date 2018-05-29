@@ -29,11 +29,10 @@ impl CInstruction {
         };
         result.push_str(comp);
 
-        let dest = self.c_instr
-            .dest_map
-            .get(self.dest().unwrap().as_str())
-            .cloned()
-            .unwrap_or("000");
+        let dest = match self.dest() {
+            Some(string) => self.c_instr.dest_map.get(string.as_str()).cloned().unwrap(),
+            None => "000",
+        };
         result.push_str(dest);
 
         let jump = match self.jump() {

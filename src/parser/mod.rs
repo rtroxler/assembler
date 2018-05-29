@@ -19,8 +19,10 @@ impl Parser {
     pub fn parse_file(&self) {
         println!("Parsing file: {:?}", self.filename);
         let file = File::open(&self.filename).expect("File not found");
+        let output_filename = self.filename.split(".").nth(0).unwrap().to_owned() + ".hack";
         // TODO: filename
-        let mut output = File::create("Add.hack").unwrap();
+        println!("Outputting to: {:?}", output_filename);
+        let mut output = File::create(output_filename).unwrap();
         let line_iter = self.filter_lines(file);
         self.parse_lines(line_iter, &mut output);
     }
