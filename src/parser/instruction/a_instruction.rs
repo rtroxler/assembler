@@ -19,7 +19,6 @@ impl AInstruction {
 
 impl Instruction for AInstruction {
     fn write_binary(&self, output: &mut File) -> Result<(), io::Error> {
-        // Pass up Result?
         write!(output, "{:016b}\n", self.symbol().parse::<i32>().unwrap())
     }
 
