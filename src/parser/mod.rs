@@ -48,7 +48,6 @@ impl Parser {
             // transform into a Instruction trait object
             let instruction = readable_line.transform();
 
-            // Should probably be elsewhere, but shrug
             instruction.print();
             instruction
                 .write_binary(output)
@@ -61,7 +60,6 @@ struct Line {
     line: String,
 }
 
-// should a line just have a instruction_type?
 #[derive(Debug)]
 enum InstructionType {
     A, // Address
