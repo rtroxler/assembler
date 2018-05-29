@@ -20,8 +20,8 @@ impl CInstructionTranslator {
         let mut jump_map = HashMap::new();
         jump_map.insert("JGT", "001");
         jump_map.insert("JEQ", "010");
-        jump_map.insert("JGE", "100");
-        jump_map.insert("JLT", "011");
+        jump_map.insert("JGE", "011");
+        jump_map.insert("JLT", "100");
         jump_map.insert("JNE", "101");
         jump_map.insert("JLE", "110");
         jump_map.insert("JMP", "111");
